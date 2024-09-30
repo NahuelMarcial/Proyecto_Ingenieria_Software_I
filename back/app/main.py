@@ -15,7 +15,7 @@ app = FastAPI()
 
 app.mount("/sockets", sio_app)
 
-origins = ["*"]  # Permisos para acceder a la API
+origins = ["https://proyecto-ingenieria-software-i.vercel.app"]  # Permisos para acceder a la API
 
 app.add_middleware(
     CORSMiddleware,
