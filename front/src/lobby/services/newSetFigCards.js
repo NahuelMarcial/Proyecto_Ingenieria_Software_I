@@ -1,7 +1,7 @@
 export const newSetFigCards = async (partida_id) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/carta_figura/set/${partida_id}`,
+      `https://proyecto-ingenieria-software-i.onrender.com/carta_figura/set/${partida_id}`,
       {
         method: "POST",
         headers: {

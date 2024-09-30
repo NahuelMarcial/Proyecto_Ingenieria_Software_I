@@ -1,6 +1,6 @@
 // createGameService.js: Servicio para crear una partida
 
-const API_URL = "http://localhost:8000/partida/crear";
+const API_URL = "https://proyecto-ingenieria-software-i.onrender.com/partida/crear";
 
 export const createGameService = async (gameData) => {
   try {

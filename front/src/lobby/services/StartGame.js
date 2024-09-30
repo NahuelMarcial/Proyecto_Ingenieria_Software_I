@@ -1,4 +1,4 @@
-const API_startgame = "http://localhost:8000/lobby/iniciar/";
+const API_startgame = "https://proyecto-ingenieria-software-i.onrender.com/lobby/iniciar/";
 
 const startGame = async (gameid, playerid) => {
   const body = { jugador: playerid };

@@ -1,7 +1,7 @@
 export const getFigCardsPlayer = async (partida_id, jugador_id) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/carta_figura/mano_jugador/` +
+      `https://proyecto-ingenieria-software-i.onrender.com/carta_figura/mano_jugador/` +
         partida_id +
         "/" +
         jugador_id,

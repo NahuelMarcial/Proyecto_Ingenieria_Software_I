@@ -2,7 +2,7 @@ export const getPlayerListService = async (partida_id) => {
   try {
     // Realizamos el fetch a la URL con el id de la partida
     const response = await fetch(
-      `http://localhost:8000/lobby/jugadores/${partida_id}`,
+      `https://proyecto-ingenieria-software-i.onrender.com/lobby/jugadores/${partida_id}`,
       {
         method: "GET", // Solicitud GET para obtener la lista
         headers: {

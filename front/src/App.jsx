@@ -9,7 +9,7 @@ import Lobby from "./lobby/containers/Lobby";
 import Game from "./game/containers/Game";
 
 // conexion al socket
-const socket = io("http://localhost:8000", {
+const socket = io("https://proyecto-ingenieria-software-i.onrender.com/", {
   path: "/sockets/socket_connection",
   transports: ["websocket"],
   reconnectionAttempts: 5,

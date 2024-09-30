@@ -1,7 +1,7 @@
 export const getCurrentTurn = async (partida_id) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/game/turno_jugador/` + partida_id
+      `https://proyecto-ingenieria-software-i.onrender.com/game/turno_jugador/` + partida_id
     );
     if (!response.ok) {
       throw new Error("Error al obtener el turno");
@@ -22,7 +22,7 @@ export const endTurn = async (partida_id, jugador_id) => {
     const body = { id_player: jugador_id };
     console.log("Body enviado:", body);
     const response = await fetch(
-      `http://localhost:8000/game/terminar_turno/` + partida_id,
+      `https://proyecto-ingenieria-software-i.onrender.com/game/terminar_turno/` + partida_id,
       {
         method: "PATCH",
         headers: {

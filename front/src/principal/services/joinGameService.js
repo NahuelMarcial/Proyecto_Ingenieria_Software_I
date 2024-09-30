@@ -5,7 +5,7 @@ const joinGameService = async (partida_id) => {
   const sid = sessionStorage.getItem("sid");
 
   console.log("Datos enviados:", partida_id, jugador, sid);
-  const url = `http://localhost:8000/partida/unirse/${partida_id}`;
+  const url = `https://proyecto-ingenieria-software-i.onrender.com/partida/unirse/${partida_id}`;
 
   try {
     const response = await fetch(url, {

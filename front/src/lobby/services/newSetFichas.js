@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/fichas/crear/";
+const API_URL = "https://proyecto-ingenieria-software-i.onrender.com/fichas/crear/";
 
 // Función para crear fichas
 export const newSetFichas = async (partida_id) => {

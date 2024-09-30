@@ -1,6 +1,6 @@
 // getGameListServices.js: Servicio para obtener la lista de partidas
 
-const API_URL = "http://localhost:8000/partida/partidas";
+const API_URL = "https://proyecto-ingenieria-software-i.onrender.com/partida/partidas";
 
 export const getGameListServices = async () => {
   try {

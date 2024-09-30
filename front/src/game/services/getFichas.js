@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/fichas/listar/";
+const API_URL = "https://proyecto-ingenieria-software-i.onrender.com/fichas/listar/";
 
 // Función para obtener fichas
 export const getFichas = async (partida_id) => {

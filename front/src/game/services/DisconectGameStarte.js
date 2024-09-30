@@ -1,5 +1,5 @@
 const API_disconectgamestarted =
-  "http://localhost:8000/game/abandonar_partida_ini/";
+  "https://proyecto-ingenieria-software-i.onrender.com/abandonar_partida_ini/";
 
 const Disconectgamestarted = async (game_id, player_id, sid, nav) => {
   try {

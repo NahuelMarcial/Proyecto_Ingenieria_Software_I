@@ -1,5 +1,5 @@
 export const getGamePlayers = async (partida_id) => {
-  const API_URL = `http://localhost:8000/lobby/jugadores/${partida_id}`;
+  const API_URL = `https://proyecto-ingenieria-software-i.onrender.com/lobby/jugadores/${partida_id}`;
   try {
     const response = await fetch(API_URL);
     if (!response.ok) {

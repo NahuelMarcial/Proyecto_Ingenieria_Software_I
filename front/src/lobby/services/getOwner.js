@@ -1,7 +1,7 @@
 export const getOwner = async (partida_id) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/lobby/owner/${partida_id}`,
+      `https://proyecto-ingenieria-software-i.onrender.com/lobby/owner/${partida_id}`,
       {
         method: "GET",
         headers: {

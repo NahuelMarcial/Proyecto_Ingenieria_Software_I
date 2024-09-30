@@ -1,6 +1,6 @@
 const deleteGame = async (partida_id, sid) => {
   const response = await fetch(
-    `http://localhost:8000/game/eliminar/` + partida_id + "/" + sid,
+    `https://proyecto-ingenieria-software-i.onrender.com/game/eliminar/` + partida_id + "/" + sid,
     {
       method: "DELETE",
       headers: {

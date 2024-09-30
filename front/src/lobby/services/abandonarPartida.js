@@ -1,6 +1,6 @@
 // src/services/gameService.js
 
-const API_abandonar_partida = "http://localhost:8000/lobby/abandonar/";
+const API_abandonar_partida = "https://proyecto-ingenieria-software-i.onrender.com/lobby/abandonar/";
 
 export const abandonarPartida = async (gameid, playerid, sid, nav) => {
   try {
