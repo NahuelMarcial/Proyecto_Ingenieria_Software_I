@@ -1,0 +1,18 @@
+@keyframes lock-animation {
+  0% {
+    transform: rotate(0deg); /* Posición inicial */
+    transform-origin: 8px 12px; /* Cambiado de 12px a 13px */
+  }
+  50% {
+    transform: rotate(-45deg); /* Rotación a -45 grados */
+    transform-origin: 8px 12px; /* Cambiado de 12px a 13px */
+  }
+  100% {
+    transform: rotate(0deg); /* Volver a la posición inicial */
+    transform-origin: 8px 12px; /* Cambiado de 12px a 13px */
+  }
+}
+
+.lock-top {
+  animation: lock-animation 1s ease-in-out;
+}
