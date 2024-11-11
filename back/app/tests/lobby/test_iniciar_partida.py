@@ -1,5 +1,5 @@
 import pytest
-from app.partida.models import Partida
+from app.home.models import Partida
 
 def test_iniciar_partida(test_client, init_db):
     # Agregar partida de prueba con jugadores
@@ -17,18 +17,18 @@ def test_iniciar_partida(test_client, init_db):
     db.commit()
 
     # Realizar la solicitud PATCH para iniciar la partida
-    response = test_client.patch(f"/lobby/iniciar/{partida.id}", json={"jugador": "Owner"})
+    response = test_client.patch(f"/lobby/{partida.id}/iniciar", json={"jugador": "Owner"})
     
     # Validar respuesta 200
-    assert response.status_code == 200
+    assert response.status_code == 200 ,"Error al iniciar la partida"
 
     # Validar que el JSON de la respuesta tiene el atributo iniciada en True
     data = response.json()
-    assert data["id"] == partida.id
-    assert data["iniciada"] is True
+    assert data["id"] == partida.id ,"El id de la partida no coincide con el esperado"
+    assert data["iniciada"] is True ,"La partida no se ha iniciado"
 
     # Validar que el owner no cambió y que el total de jugadores sigue siendo el mismo
-    assert data["owner"] == "Owner"
+    assert data["owner"] == "Owner" ,"El owner no coincide con el esperado"
     jugadores = [data["jugador1"], data["jugador2"], data["jugador3"], data["jugador4"]]
     cont = 0
     owner_find = False
@@ -40,14 +40,14 @@ def test_iniciar_partida(test_client, init_db):
             owner_find = True
         if (jugador == "Jugador2"):
             j2_find = True
-    assert cont == 2
-    assert owner_find
-    assert j2_find
+    assert cont == 2 ,"El total de jugadores cambio"
+    assert owner_find ,"El owner no se encuentra en la partida"
+    assert j2_find ,"El jugador2 no se encuentra en la partida"
 
     
 def test_iniciar_partida_no_existe(test_client, init_db):
     # Intentar iniciar una partida que no existe
-    response = test_client.patch("/lobby/iniciar/999999", json={"jugador": "Owner"})
+    response = test_client.patch("/lobby/999999/iniciar", json={"jugador": "Owner"})
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
 
@@ -66,7 +66,7 @@ def test_iniciar_partida_menos_jugadores(test_client, init_db):
     db.commit()
 
     # Intentar iniciar la partida
-    response = test_client.patch(f"/lobby/iniciar/{partida.id}", json={"jugador": "Owner"})
+    response = test_client.patch(f"/lobby/{partida.id}/iniciar", json={"jugador": "Owner"})
     assert response.status_code == 400
     assert response.json() == {"detail": "No hay suficientes jugadores para iniciar la partida"}
 
@@ -86,7 +86,7 @@ def test_iniciar_partida_no_owner(test_client, init_db):
     db.commit()
 
     # Intentar iniciar la partida con un jugador que no es el owner
-    response = test_client.patch(f"/lobby/iniciar/{partida.id}", json={"jugador": "Jugador2"})
+    response = test_client.patch(f"/lobby/{partida.id}/iniciar", json={"jugador": "Jugador2"})
     assert response.status_code == 400
     assert response.json() == {"detail": "Solo el owner puede iniciar la partida"}
 
@@ -106,7 +106,7 @@ def test_iniciar_partida_ya_iniciada(test_client, init_db):
     db.commit()
 
     # Intentar iniciar la partida nuevamente
-    response = test_client.patch(f"/lobby/iniciar/{partida.id}", json={"jugador": "Owner"})
+    response = test_client.patch(f"/lobby/{partida.id}/iniciar", json={"jugador": "Owner"})
     assert response.status_code == 400
     assert response.json() == {"detail": "La partida ya ha sido iniciada"}
 
@@ -129,8 +129,8 @@ def test_arreglar_turno_db(test_client, init_db):
     db.add(partida)
     db.commit()
 
-    response = test_client.patch(f"/lobby/iniciar/{partida.id}", json={"jugador": "Owner"})
-    assert response.status_code == 200
+    response = test_client.patch(f"/lobby/{partida.id}/iniciar", json={"jugador": "Owner"})
+    assert response.status_code == 200 ,"Error al iniciar la partida"
     response_json = response.json()
     jugadores= [
         response_json["jugador1"],
@@ -140,6 +140,6 @@ def test_arreglar_turno_db(test_client, init_db):
     ]
     
     turno = response_json["turno"]
-    assert jugadores [turno-1] != ""
+    assert jugadores [turno-1] != "" ,"El turno no se asignó correctamente"
 
     

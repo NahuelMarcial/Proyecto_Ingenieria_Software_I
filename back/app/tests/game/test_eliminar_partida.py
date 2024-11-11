@@ -1,21 +1,14 @@
 import pytest
-from app.partida.models import Partida
-import app.carta_figura.carta_figura_repository as carta_figura_repository
-
-def test_mostrar_partida(test_client, init_db):
-    partidavalida = Partida(nombre="Partida Valida", owner="Jugador1",jugador1="Jugador1", max_jugadores=4)
-    db = init_db
-    db.add(partidavalida)
-    db.commit()
+from app.home.models import Partida
+import app.game.carta_figura.carta_figura_repository as carta_figura_repository
 
 def test_eliminar_partida(test_client, init_db):
     partidavalida = Partida(nombre="Partida Valida", owner="Jugador1",jugador1="Jugador1", max_jugadores=4,iniciada=False, cantidad_jugadores=1)
     db = init_db
     db.add(partidavalida)
     db.commit()
-    response = test_client.delete(f"/game/eliminar/{partidavalida.id}/back")
-    assert response.status_code == 200
-    print (response.json())
+    response = test_client.delete(f"/game/{partidavalida.id}/eliminar/back")
+    assert response.status_code == 200 , "Error al eliminar partida"
     assert response.json() == {
         "id": partidavalida.id,
         "nombre": "Partida Valida",
@@ -29,16 +22,16 @@ def test_eliminar_partida(test_client, init_db):
         "iniciada": False,
         "cantidad_jugadores": 1,
         "turno": 1
-    }
-    response = test_client.get(f"/partida/partidas/{partidavalida.id}")
+    }, "La partida no coincide con la esperada"
+    response = test_client.get(f"/home/partida/{partidavalida.id}")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
-    response = test_client.delete(f"/game/eliminar/{partidavalida.id}/back")
+    response = test_client.delete(f"/game/{partidavalida.id}/eliminar/back")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
 
 def test_eliminar_partida_no_existente(test_client, init_db):
-    response = test_client.delete(f"/game/eliminar/99999999/back")
+    response = test_client.delete(f"/game/99999999/eliminar/back")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
 
@@ -50,24 +43,24 @@ def test_eliminar_db(test_client, init_db):
     db.commit()
 
     # Agregamos los sets
-    response = test_client.post(f"/fichas/crear/{partidavalida.id}")
-    assert response.status_code == 200
-    response = test_client.post(f"/carta_figura/set/{partidavalida.id}")
-    assert response.status_code == 200
-    response = test_client.post(f"/carta_movimiento/set/{partidavalida.id}")
-    assert response.status_code == 200
+    response = test_client.post(f"/game/{partidavalida.id}/fichas/crear")
+    assert response.status_code == 200 , "Error al crear fichas"
+    response = test_client.post(f"/game/{partidavalida.id}/carta_figura/set")
+    assert response.status_code == 200 ,"Error al crear cartas figura"
+    response = test_client.post(f"/game/{partidavalida.id}/carta_movimiento/set")
+    assert response.status_code == 200 ,"Error al crear cartas movimiento"
 
     # Eliminamos la partida, lo que deberia eliminar los sets
-    response = test_client.delete(f"/game/eliminar/{partidavalida.id}/back")
-    assert response.status_code == 200
+    response = test_client.delete(f"/game/{partidavalida.id}/eliminar/back")
+    assert response.status_code == 200,"Error al eliminar partida"
 
-    response = test_client.get(f"/fichas/listar/{partidavalida.id}")
+    response = test_client.get(f"/game/{partidavalida.id}/fichas/listar")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
 
     response = carta_figura_repository.get_cartas_figura_db(db, partidavalida.id)
-    assert response == []
+    assert response == [] , "Error al eliminar cartas figura"
 
-    response = test_client.get(f"/carta_movimiento/get/{partidavalida.id}")
+    response = test_client.get(f"/game/{partidavalida.id}/carta_movimiento/get")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}

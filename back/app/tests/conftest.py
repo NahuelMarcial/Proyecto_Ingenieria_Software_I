@@ -4,11 +4,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.partida.models import Partida
 from app.main import app
 from app.database.database import Base, get_db
-from app.carta_figura.models import Carta_Figura
-import json
+
 
 # Configuración para la base de datos de prueba
 TEST_DB_NAME = "test.db"

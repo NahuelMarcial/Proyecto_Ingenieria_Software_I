@@ -1,7 +1,7 @@
 import pytest
 import json
-from app.partida.models import Partida
-from app.carta_figura.models import Carta_Figura
+from app.home.models import Partida
+from app.game.carta_figura.models import Carta_Figura
 # Test caso exitoso
 def test_get_cartas_figura_mano(test_client, init_db):
     partida = Partida(nombre="Partida de prueba", owner="j1", jugador1="j1", jugador2= "j2", iniciada=True)
@@ -10,20 +10,20 @@ def test_get_cartas_figura_mano(test_client, init_db):
     db.commit()
 
     # Realizar la petición al endpoint para crear el set de cartas de figura
-    response = test_client.post(f"/carta_figura/set/{partida.id}")
-    assert response.status_code == 200
+    response = test_client.post(f"/game/{partida.id}/carta_figura/set")
+    assert response.status_code == 200 ,f"Error al crear cartas de figura"
 
     # Realizar la petición al endpoint para obtener las cartas figura de la mano
-    response = test_client.get(f"/carta_figura/mano/{partida.id}")
-    assert response.status_code == 200
+    response = test_client.get(f"/game/{partida.id}/carta_figura/mano")
+    assert response.status_code == 200,f"Error al setear u obtener mano de cartas de figura"
 
     response_json = response.json()
 
     for carta in response_json:
-        assert carta["mostrar"] == True
-        assert (carta["id_player"] == "j1" or carta["id_player"] == "j2")
+        assert carta["mostrar"] == True ,f"En la mano no debe haber cartas no mostradas"
+        assert (carta["id_player"] == "j1" or carta["id_player"] == "j2") , f"El jugador de la carta es incorrecto. Esperado: j1 o j2, Actual: {carta['id_player']}"
     
-    assert len(response_json) <= 6
+    assert len(response_json) <= 6 ,f"El número de cartas es incorrecto. Esperado: <= 6, Actual: {len(response_json)}"
 
 
 
@@ -43,19 +43,19 @@ def test_get_cartas_figura_mano_esp(test_client, init_db):
     db.commit()
 
     # Realizar la petición al endpoint para obtener las cartas figura de la mano
-    response = test_client.get(f"/carta_figura/mano/{partida.id}")
-    assert response.status_code == 200
+    response = test_client.get(f"/game/{partida.id}/carta_figura/mano")
+    assert response.status_code == 200,f"Resputa no esperada: {response.json()}"
 
     # Verificar que las cartas obtenidas sean las correctas
     cartas_mano = response.json()
     assert len(cartas_mano) == 2
-    assert cartas_mano[0]["nombre"] == "Carta 1"
-    assert cartas_mano[1]["nombre"] == "Carta 2"
+    assert cartas_mano[0]["nombre"] == "Carta 1",f"El nombre de la carta es incorrecto. Esperado: Carta 1, Actual: {cartas_mano[0]['nombre']}"
+    assert cartas_mano[1]["nombre"] == "Carta 2",f"El nombre de la carta es incorrecto. Esperado: Carta 2, Actual: {cartas_mano[1]['nombre']}"
 
 # Test cuando la partida no existe
 def test_get_cartas_figura_partida_no_existe(test_client):
     # Intentar obtener cartas de una partida inexistente
-    response = test_client.get("/carta_figura/mano/999999")
+    response = test_client.get("/game/99999999/carta_figura/mano")
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}
 
@@ -68,6 +68,6 @@ def test_get_cartas_figura_sin_cartas(test_client, init_db):
     db.commit()
 
     # Intentar obtener cartas de la partida sin cartas
-    response = test_client.get(f"/carta_figura/mano/{partida.id}")
+    response = test_client.get(f"/game/{partida.id}/carta_figura/mano")
     assert response.status_code == 400
     assert response.json() == {"detail": "No hay cartas asignadas a la partida"}

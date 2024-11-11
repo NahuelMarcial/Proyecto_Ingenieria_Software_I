@@ -23,3 +23,10 @@ class PartidaData(BaseModel):
 
 class sidplayer(BaseModel):
     sid: str
+
+class ColorProhibido(BaseModel):
+    color: str
+
+class Ganador(BaseModel):
+    id_player: str
+    name: str

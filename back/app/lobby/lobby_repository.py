@@ -2,15 +2,16 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import random
 
-import app.partida.partida_repository as partida_repository
-from app.lobby import utils
+import app.home.home_repository as home_repository
+import app.lobby.logic as lobby_logic
+import app.lobby.socket_lobby as socket_lobby
 
 # Reordenamiento de los jugadores
 def ini_random_jugadores_db(data):
     db: Session = data['db']
     partida_id: int = data['partida_id']
     jugador: str = data['playerId']
-    partida = partida_repository.get_partida_db(db, partida_id)
+    partida = home_repository.get_partida_db(db, partida_id)
     if not partida:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
     
@@ -20,13 +21,12 @@ def ini_random_jugadores_db(data):
 
     db.commit()
     db.refresh(partida)
-    print(f"Jugadores de la partida {partida_id} reordenados aleatoriamente")
     return partida
 
 
 # Actualizar el estado de la partida a iniciada
 def iniciar_partida_db(partida_id, db):
-    partida = partida_repository.get_partida_db(db, partida_id)
+    partida = home_repository.get_partida_db(db, partida_id)
     if not partida:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
     partida.iniciada = True
@@ -34,23 +34,19 @@ def iniciar_partida_db(partida_id, db):
     db.refresh(partida)
     return partida
 
-def eliminar_jugador_db(partida_id, jugador, db):
-    partida = partida_repository.get_partida_db(db, partida_id)
+async def eliminar_jugador_db(partida_id, jugador, db):
+    partida = home_repository.get_partida_db(db, partida_id)
     error = False 
     if not partida:
         error = True
         raise HTTPException(status_code=404, detail="Partida no encontrada")
     if jugador == partida.owner:
-        #TODO: owner abandona
-        error = True
-        raise HTTPException(status_code=400, detail="Owner abandona no implementado")
-    if partida.iniciada:
-        error = True
-        #TODO: abandonar partida iniciada
-        raise HTTPException(status_code=400, detail="Abandonar partida iniciada no implementado")
+        partida.iniciada = True
+        data = {'db': db, 'partida_id': partida_id, 'playerId': jugador}
+        await socket_lobby.owner_abandona_lobby(data)
 
     jugadores = [partida.jugador1, partida.jugador2, partida.jugador3, partida.jugador4]
-    jugadores = utils.eliminar_jugador(partida, jugador, jugadores)
+    jugadores = lobby_logic.eliminar_jugador(partida, jugador, jugadores)
     partida.jugador1, partida.jugador2, partida.jugador3, partida.jugador4 = jugadores
 
     db.commit()
@@ -58,16 +54,19 @@ def eliminar_jugador_db(partida_id, jugador, db):
     return error
 
 def get_owner_db(db, partida_id):
-    partida = partida_repository.get_partida_db(db, partida_id)
+    partida = home_repository.get_partida_db(db, partida_id)
     if not partida:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
-    return partida.owner
+    if partida.owner in [partida.jugador1, partida.jugador2, partida.jugador3, partida.jugador4]:
+        return partida.owner
+    else:
+        return ""
 
 def arreglar_turno_db(partida_id, db):
-    partida = partida_repository.get_partida_db(db, partida_id)
+    partida = home_repository.get_partida_db(db, partida_id)
     if not partida:
         raise HTTPException(status_code=404, detail="Partida no encontrada")
-    jugadores = partida_repository.get_jugadores_db(db, partida_id)
+    jugadores = home_repository.get_jugadores_db(db, partida_id)
     turno = partida.turno
     while True:
         turno += 1
@@ -79,3 +78,18 @@ def arreglar_turno_db(partida_id, db):
     db.commit()
     db.refresh(partida)
     return partida
+
+def get_nombres_db(db, partida_id):
+    partida = home_repository.get_partida_db(db, partida_id)
+    if not partida:
+        raise HTTPException(status_code=404, detail="Partida no encontrada")
+    jugadores = [partida.jugador1, partida.jugador2, partida.jugador3, partida.jugador4]
+    nombres = []
+    for jugador in jugadores:
+        if jugador == "":
+            nombres.append("")
+        else:
+            nombre = home_repository.get_nombre_jugador_db(jugador, db)
+            nombres.append(nombre.nombre)
+            
+    return nombres

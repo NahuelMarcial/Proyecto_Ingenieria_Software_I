@@ -1,6 +1,6 @@
 import pytest
-from app.partida.models import Partida
-from app.carta_movimiento.models import Carta_Movimiento
+from app.home.models import Partida
+from app.game.carta_movimiento.models import Carta_Movimiento
 # Test para verificar que las cartas de movimiento se asignan correctamente a un jugador
 def test_asignar_cartas_movimiento_jugador(test_client, init_db):
     # Crear una partida válida con 1 jugador
@@ -20,8 +20,8 @@ def test_asignar_cartas_movimiento_jugador(test_client, init_db):
 
     # Realizar la petición al endpoint que asigna las cartas de movimiento
     data = {"id_player": "Jugador1"}
-    response = test_client.patch(f"/carta_movimiento/reponer_jugador/{partida.id}", json=data)
-    assert response.status_code == 200
+    response = test_client.patch(f"/game/{partida.id}/carta_movimiento/reponer_jugador", json=data)
+    assert response.status_code == 200,"Error al asignar cartas de movimiento al jugador"
 
     # Obtener las cartas asignadas de la respuesta
     cartas_asignadas = response.json()
@@ -30,9 +30,9 @@ def test_asignar_cartas_movimiento_jugador(test_client, init_db):
     num_cartas_movimiento = 3  # Asumimos que el jugador debe tener 5 cartas de movimiento
 
     # Verificar que el jugador tiene la cantidad correcta de cartas de movimiento
-    assert len(cartas_asignadas) == num_cartas_movimiento
+    assert len(cartas_asignadas) == num_cartas_movimiento ,f"Se esperaban {num_cartas_movimiento} cartas asignadas, se asignaron {len(cartas_asignadas)}"
     for carta in cartas_asignadas:
-        assert carta["id_player"] == "Jugador1"
+        assert carta["id_player"] == "Jugador1" , "El jugador no tiene asignada la carta de movimiento"
 
 # Test fallo no hay cartas asignadas de la partida
 def test_asignar_cartas_movimiento_jugador_no_cartas(test_client, init_db):
@@ -44,7 +44,7 @@ def test_asignar_cartas_movimiento_jugador_no_cartas(test_client, init_db):
 
     # Realizar la petición al endpoint que asigna las cartas de movimiento
     data = {"id_player": "Jugador1"}
-    response = test_client.patch(f"/carta_movimiento/reponer_jugador/{partida.id}", json=data)
+    response = test_client.patch(f"/game/{partida.id}/carta_movimiento/reponer_jugador", json=data)
     assert response.status_code == 400
     assert response.json() == {"detail": "La partida no tiene cartas asignadas"}
 
@@ -58,7 +58,7 @@ def test_asignar_cartas_movimiento_jugador_partida_no_iniciada(test_client, init
 
     # Realizar la petición al endpoint que asigna las cartas de movimiento
     data = {"id_player": "Jugador1"}
-    response = test_client.patch(f"/carta_movimiento/reponer_jugador/{partida.id}", json=data)
+    response = test_client.patch(f"/game/{partida.id}/carta_movimiento/reponer_jugador", json=data)
     assert response.status_code == 400
     assert response.json() == {"detail": "La partida no ha iniciado"}
 
@@ -70,11 +70,11 @@ def test_asignar_cartas_movimiento_jugador_no_pertenece(test_client, init_db):
     db.add(partida)
     db.commit()
 
-    test_client.post(f"/carta_movimiento/set/{partida.id}")
+    test_client.post(f"/game/{partida.id}/carta_movimiento/set")
 
     # Realizar la petición al endpoint que asigna las cartas de movimiento
     data = {"id_player": "Jugador2"}
-    response = test_client.patch(f"/carta_movimiento/reponer_jugador/{partida.id}", json=data)
+    response = test_client.patch(f"/game/{partida.id}/carta_movimiento/reponer_jugador", json=data)
     assert response.status_code == 400
     assert response.json() == {"detail": "El jugador no pertenece a la partida"}
 
@@ -82,6 +82,6 @@ def test_asignar_cartas_movimiento_jugador_no_pertenece(test_client, init_db):
 def test_asignar_cartas_movimiento_jugador_partida_no_encontrada(test_client, init_db):
     # Realizar la petición al endpoint que asigna las cartas de movimiento
     data = {"id_player": "Jugador1"}
-    response = test_client.patch(f"/carta_movimiento/reponer_jugador/999999", json=data)
+    response = test_client.patch(f"/game/99999999/carta_movimiento/reponer_jugador", json=data)
     assert response.status_code == 404
     assert response.json() == {"detail": "Partida no encontrada"}

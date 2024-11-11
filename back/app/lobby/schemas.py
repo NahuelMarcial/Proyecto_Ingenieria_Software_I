@@ -30,3 +30,8 @@ class JugadorID(BaseModel):
 class OwnerID(BaseModel):
     owner: str
 
+class NombresData(BaseModel):
+    jugador1: str
+    jugador2: str
+    jugador3: str
+    jugador4: str

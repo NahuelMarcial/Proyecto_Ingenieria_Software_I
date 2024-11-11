@@ -1,7 +1,7 @@
 import pytest
-from app.partida.models import Partida
-from app.carta_movimiento.models import Carta_Movimiento
-from app.carta_movimiento import carta_movimiento_repository
+from app.home.models import Partida
+from app.game.carta_movimiento.models import Carta_Movimiento
+from app.game.carta_movimiento import carta_movimiento_repository
 from fastapi import HTTPException
 
 # Test para verificar que las cartas de movimiento se desasignan correctamente de un jugador
@@ -24,9 +24,9 @@ def test_desasignar_cartas_movimiento_jugador(init_db):
     cartas_desasignadas = carta_movimiento_repository.desasignar_cartas_movimiento(db, partida.id, "Jugador1")
 
     # Verificar que las cartas de movimiento se desasignaron correctamente del jugador
-    assert len(cartas_desasignadas) == 3
+    assert len(cartas_desasignadas) == 3 ,f"Se esperaban 3 cartas desasignadas, se desasignaron {len(cartas_desasignadas)}"
     for carta in cartas_desasignadas:
-        assert carta.id_player == ""
+        assert carta.id_player == "" ,f"El jugador no fue desasignado de la carta {carta.id_carta}"
 
 # Test fallo no hay cartas de movimiento asignadas al jugador
 def test_desasignar_cartas_movimiento_jugador_no_asignadas(init_db):
@@ -66,7 +66,7 @@ def test_desasignar_cartas_movimiento_jugador_no_pertenece(test_client, init_db)
     db.add(partida)
     db.commit()
 
-    response=test_client.post(f"/carta_movimiento/set/{partida.id}")
+    response=test_client.post(f"/game/{partida.id}/carta_movimiento/set")
     # Intentar desasignar cartas de movimiento para un jugador que no pertenece a la partida
     try:
         carta_movimiento_repository.desasignar_cartas_movimiento(db, partida.id, "Jugador2")

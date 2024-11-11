@@ -1,5 +1,5 @@
 import pytest
-from app.partida.models import Partida
+from app.home.models import Partida
 # Test para verificar que un jugador abandona la partida correctamente
 def test_abandonar_partida_ini_exitoso(test_client, init_db):
     # Crear una partida válida con 2 jugadores
@@ -17,21 +17,21 @@ def test_abandonar_partida_ini_exitoso(test_client, init_db):
     db.add(partida)
     db.commit()
 
-    response=test_client.post(f"/carta_movimiento/set/{partida.id}")
-    response = test_client.post(f"/carta_figura/set/{partida.id}")
+    test_client.post(f"/game/{partida.id}/carta_movimiento/set")
+    test_client.post(f"/game/{partida.id}/carta_figura/set")
 
 
     # Realizar la petición al endpoint para que Jugador2 abandone la partida
-    response = test_client.patch(f"/game/abandonar_partida_ini/{partida.id}", json={"id_player": "Jugador2", "sid": "back"})
+    response = test_client.patch(f"/game/{partida.id}/abandonar_partida_ini", json={"id_player": "Jugador2", "sid": "back"})
     partida_data = response.json()
     # Verificar que la respuesta es exitosa
-    assert response.status_code == 200
+    assert response.status_code == 200,"Error al abandonar partida iniciada"
     partida_data = response.json()
 
     # Verificar que la cantidad de jugadores se reduce y que Jugador2 fue eliminado
-    assert partida_data["cantidad_jugadores"] == 1
-    assert partida_data["jugador2"] == ""  # Jugador2 abandonó la partida
-    assert partida_data["turno"] == 1  # El turno se pasa
+    assert partida_data["cantidad_jugadores"] == 1 , "La cantidad de jugadores no se redujo"
+    assert partida_data["jugador2"] == "" ,"El jugador 2 no fue eliminado"
+    assert partida_data["turno"] == 1 ,"El turno no se actualizo"
 
 # Test fallo: el jugador no pertenece a la partida
 def test_abandonar_partida_ini_jugador_no_pertenece(test_client, init_db):
@@ -50,7 +50,7 @@ def test_abandonar_partida_ini_jugador_no_pertenece(test_client, init_db):
 
     # Intentar que un jugador no registrado abandone la partida
     data = {"id_player": "Jugador2", "sid": "back"}
-    response = test_client.patch(f"/game/abandonar_partida_ini/{partida.id}", json=data)
+    response = test_client.patch(f"/game/{partida.id}/abandonar_partida_ini", json=data)
 
     # Verificar que se devuelve un error
     assert response.status_code == 400
@@ -73,7 +73,7 @@ def test_abandonar_partida_ini_partida_no_iniciada(test_client, init_db):
 
     # Intentar que el jugador abandone la partida
     data = {"id_player": "Jugador1", "sid": "back"}
-    response = test_client.patch(f"/game/abandonar_partida_ini/{partida.id}", json=data)
+    response = test_client.patch(f"/game/{partida.id}/abandonar_partida_ini", json=data)
 
     # Verificar que se devuelve un error
     assert response.status_code == 400
@@ -83,7 +83,7 @@ def test_abandonar_partida_ini_partida_no_iniciada(test_client, init_db):
 def test_abandonar_partida_ini_partida_no_existente(test_client):
     # Intentar que un jugador abandone una partida que no existe
     data = {"id_player": "Jugador1", "sid": "back"}
-    response = test_client.patch(f"/game/abandonar_partida_ini/999999", json=data)
+    response = test_client.patch(f"/game/999999999/abandonar_partida_ini", json=data)
 
     # Verificar que se devuelve un error 404
     assert response.status_code == 404
